@@ -16,6 +16,7 @@ import {
 import { chainQuestContract } from "../../../../contract/abi";
 import { publicClient } from "@/components/Providers";
 import { parseEther } from "viem";
+import { ToastAction } from "@/components/ui/toast";
 interface contestParams {
   params: {
     contestId: string;
@@ -63,8 +64,9 @@ export default function ContestDetails({ params }: contestParams) {
     //@ts-ignore
     setScore(formattedScore);
     toast({
-      title: "Score Retrieved",
-      description: `Your score is ${data}`,
+      title: "score ",
+      description: `Your score is ${formattedScore}`,
+      action: <ToastAction altText="Goto schedule to undo">Undo</ToastAction>,
     });
   };
 

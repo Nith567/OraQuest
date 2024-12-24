@@ -9,6 +9,7 @@ import { WagmiProvider } from "wagmi";
 import * as React from "react";
 import { ThemeProvider as NextThemesProvider } from "next-themes";
 import { type ThemeProviderProps } from "next-themes/dist/types";
+import { ToastAction } from "@/components/ui/toast";
 import {
   mainnet,
   optimism,
@@ -26,10 +27,10 @@ const queryClient = new QueryClient();
 const config = getDefaultConfig({
   appName: "OraQuest",
   projectId: process.env.NEXT_PUBLIC_PROJECT_ID || "",
-  chains: [optimismSepolia],
+  chains: [optimismSepolia, baseSepolia],
   transports: {
-    [optimismSepolia.id]: http(
-      "https://opt-sepolia.g.alchemy.com/v2/POcytJtZjkzStgaMseE9BxpHexaC4Tfj"
+    [baseSepolia.id]: http(
+      "https://base-sepolia.g.alchemy.com/v2/POcytJtZjkzStgaMseE9BxpHexaC4Tfj"
     ),
   },
 });
@@ -39,14 +40,14 @@ export function ThemeProvider({ children, ...props }: ThemeProviderProps) {
 }
 
 export const walletClient = createWalletClient({
-  chain: optimismSepolia,
+  chain: baseSepolia,
   transport: custom(window.ethereum),
 });
 
 export const publicClient = createPublicClient({
   chain: mainnet,
   transport: http(
-    "https://opt-sepolia.g.alchemy.com/v2/POcytJtZjkzStgaMseE9BxpHexaC4Tfj"
+    "https://base-sepolia.g.alchemy.com/v2/POcytJtZjkzStgaMseE9BxpHexaC4Tfj"
   ),
 });
 
