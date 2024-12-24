@@ -6,16 +6,16 @@ Ora-Quest is a decentralized application (dApp) that leverages the power of an o
 - **Future Scope/ Grant**: Make an AI agent where to connect AI with ORA -Quest everyone can participate from different contests and who guesses first wins the prize.
 
 ## Features
-
+-**Supports CoinBaseSmartWallet**
 - **Oracle Integration**: The Ora-AI oracle generates riddles and evaluates answers.
 - **Decentralized Scoring**: Scores are calculated on-chain, ensuring trust and transparency handled by AI.
 - **Prize Claiming**: Participants can claim prizes if their answer scores exceed the required deployed score intially.
 - **Secure Smart Contracts**: Logic for competitions and prize distribution is handled by robust smart contracts.
 
 
-## Youtube Demo Video: 
-[Youtube DEMO VIDEO](https://youtu.be/_GRlXyxbrE4)
-
+## Youtube Demo : 
+1)[oraOptimismSepolia DEMO VIDEO](https://youtu.be/_GRlXyxbrE4)
+2)[OraBase DEMO VIDE](https://youtu.be/VCNEdlU4bz4)
 
 ## How It Works
 
