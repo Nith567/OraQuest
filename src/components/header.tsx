@@ -16,7 +16,7 @@ export function Header() {
   return (
     <header className="px-4 bg-blue-500 lg:px-6 h-20 flex items-center justify-between">
       <div className="flex items-center">
-        <Link className="flex items-center justify-center" href="#">
+        <Link className="flex items-center justify-center" href="/">
           <Image
             src="/chainQuests.png"
             alt="App Logo"
@@ -24,7 +24,7 @@ export function Header() {
             height={50}
             priority
           />
-          <span className="ml-2 text-2xl font-bold">ChainQuest</span>
+          <span className="ml-2 text-2xl font-bold">OraQuest</span>
         </Link>
       </div>
       <div className="flex items-center space-x-4">
@@ -35,13 +35,7 @@ export function Header() {
             <nav className="hidden md:flex gap-4 sm:gap-6">
               <Link
                 className="text-sm font-medium hover:underline underline-offset-4"
-                href="/upload"
-              >
-                Enter
-              </Link>
-              <Link
-                className="text-sm font-medium hover:underline underline-offset-4"
-                href="#"
+                href="/"
               >
                 About
               </Link>

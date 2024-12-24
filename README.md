@@ -1,36 +1,36 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Ora-Quest
 
-## Getting Started
+Ora-Quest is a decentralized application (dApp) that leverages the power of an oracle-based system to create logic-based riddles and competitions. Participants can solve riddles, submit their answers, and win prizes if their answers meet the required score criteria. The smart contract handles validation and prize distribution, ensuring transparency and fairness.
 
-First, run the development server:
+> Ref Idea : https://x.com/jarrodWattsDev/status/1862299845710757980
+- **Future Scope/ Grant**: Make an AI agent where to connect AI with ORA -Quest everyone can participate from different contests and who guesses first wins the prize.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## Features
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+- **Oracle Integration**: The Ora-AI oracle generates riddles and evaluates answers.
+- **Decentralized Scoring**: Scores are calculated on-chain, ensuring trust and transparency handled by AI.
+- **Prize Claiming**: Participants can claim prizes if their answer scores exceed the required deployed score intially.
+- **Secure Smart Contracts**: Logic for competitions and prize distribution is handled by robust smart contracts.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+## Youtube Demo Video: 
+[Youtube DEMO VIDEO](https://youtu.be/_GRlXyxbrE4)
 
-## Learn More
 
-To learn more about Next.js, take a look at the following resources:
+## How It Works
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+1. **Enter Competition**:
+   - Users join a competition by providing a theme, entry cost, and desired minimum score to win.
+   - The competition details are stored on-chain.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+2. **Solve the Riddle**:
+   - Participants submit their answers to the riddle via the dApp.
+   - The Ora-AI oracle processes the answers and returns a score.
 
-## Deploy on Vercel
+3. **Claim Prize**:
+   - If the score is greater than or equal to the required score, the participant can claim the prize.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+![alt text](<Screenshot 2024-12-23 at 8.32.04 PM.png>)
+
+>Sample Riddle - speak without a mouth and hear without ears. I have no body, but I come alive with wind. What am I?

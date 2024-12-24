@@ -1,6 +1,15 @@
 import axios from "axios";
 
-const upload = async (id: `0x${string}` | undefined, file: string) => {
+import { v4 as uuidv4 } from "uuid";
+
+const generateUUID = (): string => {
+  const uuid = uuidv4();
+  return uuid;
+};
+
+const upload = async (file: string) => {
+  const id = generateUUID();
+  console.log("fk ", id);
   const data = new FormData();
   data.append("file", file);
   data.append(

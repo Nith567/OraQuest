@@ -13,23 +13,43 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import axios from "axios";
 import { useRouter } from "next/navigation";
-
+import { deployContract } from "../../utils/contractdeploy";
+import { useAccount } from "wagmi";
+import { useToast } from "@/hooks/use-toast";
+import {
+  useWriteContract,
+  useWaitForTransactionReceipt,
+  BaseError,
+} from "wagmi";
 export function CompetitionEntryDialog() {
   const [open, setOpen] = useState(false);
   const [theme, setTheme] = useState("");
   const [entryCost, setEntryCost] = useState("");
-  const [scoreToWin, setScoreToWin] = useState(0); // replace "" with 0 or any default number
-
+  const [scoreToWin, setScoreToWin] = useState(0);
   const router = useRouter();
+
+  const account = useAccount();
+  const { toast } = useToast();
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     try {
+      const res = await deployContract(
+        account.address,
+        theme,
+        entryCost,
+        scoreToWin
+      );
+      console.log("nowdeployed ", res);
+      toast({
+        title: "successfully Deployed",
+        description: "You have successfully deployed contract.",
+      });
       const contestData = {
         theme,
         entryCost,
         scoreToWin,
-        contractAddress: "du",
+        contractAddress: res,
       };
       const response = await axios.post("/api/contest", contestData);
       console.log("data", response.data);
@@ -37,7 +57,6 @@ export function CompetitionEntryDialog() {
       router.push(`/contests/${response.data}`);
     } catch (error) {
       console.error("Error submitting contest:", error);
-      // Handle error (e.g., show error message to user)
     }
     setOpen(false);
   };

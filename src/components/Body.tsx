@@ -10,11 +10,11 @@ export function Body() {
           <div className="flex flex-col items-center space-y-6 text-center">
             <div className="space-y-4">
               <h1 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl lg:text-6xl">
-                ChainQuest
+                OraQuest
               </h1>
               <p className="mx-auto max-w-[700px] text-gray-300 md:text-xl">
-                Enter the ultimate blockchain challenge. Participate, compete,
-                and win in an exciting decentralized contest.
+                Participate, compete, and win in an exciting decentralized
+                AI-ORA contest.
               </p>
             </div>
             <div className="space-x-4">

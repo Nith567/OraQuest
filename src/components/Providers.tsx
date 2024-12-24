@@ -4,6 +4,7 @@ import {
   RainbowKitProvider,
   darkTheme,
 } from "@rainbow-me/rainbowkit";
+import { createPublicClient } from "viem";
 import { WagmiProvider } from "wagmi";
 import * as React from "react";
 import { ThemeProvider as NextThemesProvider } from "next-themes";
@@ -13,29 +14,47 @@ import {
   optimism,
   arbitrum,
   sepolia,
+  baseSepolia,
   optimismSepolia,
   arbitrumSepolia,
 } from "wagmi/chains";
+import { createWalletClient, custom } from "viem";
+import { http } from "wagmi";
 import { QueryClientProvider, QueryClient } from "@tanstack/react-query";
 const queryClient = new QueryClient();
 
 const config = getDefaultConfig({
   appName: "Some App",
   projectId: process.env.NEXT_PUBLIC_PROJECT_ID || "",
-  chains: [
-    mainnet,
-    optimism,
-    arbitrum,
-    sepolia,
-    optimismSepolia,
-    arbitrumSepolia,
-  ],
-  ssr: true, // If your dApp uses server side rendering (SSR)
+  chains: [optimismSepolia],
+  transports: {
+    [optimismSepolia.id]: http(
+      "https://opt-sepolia.g.alchemy.com/v2/POcytJtZjkzStgaMseE9BxpHexaC4Tfj"
+    ),
+  },
 });
 
 export function ThemeProvider({ children, ...props }: ThemeProviderProps) {
   return <NextThemesProvider {...props}>{children}</NextThemesProvider>;
 }
+
+export const walletClient = createWalletClient({
+  chain: optimismSepolia,
+  transport: custom(window.ethereum),
+});
+
+export const publicClient = createPublicClient({
+  chain: mainnet,
+  transport: http(
+    "https://opt-sepolia.g.alchemy.com/v2/POcytJtZjkzStgaMseE9BxpHexaC4Tfj"
+  ),
+});
+export const initClients = async () => {
+  const [account] = await walletClient.getAddresses();
+  console.log("config account", account);
+
+  return { account };
+};
 
 export default function Providers({ children }: { children: React.ReactNode }) {
   return (

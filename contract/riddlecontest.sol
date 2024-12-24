@@ -1,39 +1,61 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
+// import "./interfaces/IAIOracle.sol";
+// import "./AIOracleCallbackReceiver.sol";
 import {IAIOracle} from "./IAIOracle.sol";
 import {AIOracleCallbackReceiver} from "./AIOracleCallbackReceiver.sol";
-
-/// @notice Theme contest contract with AI scoring integration
-contract ThemeContest is AIOracleCallbackReceiver {
-    string public theme;
+/// @notice User interfacing contract that interacts with OAO
+/// @dev Prompt contract inherits AIOracleCallbackReceiver, so that OPML nodes can callback with the result.
+contract SPrompts is AIOracleCallbackReceiver {
+    string public riddleTheme;
     uint256 public entryCost;
     uint256 public scoreToWin;
     uint256 public prizePool;
     address public winner;
-    address public owner;
 
-    event ContestEntered(address participant, uint256 requestId);
-    event PrizeClaimed(address winner, uint256 prize);
-    event AIResult(uint256 requestId, address participant, uint256 score);
+    event promptsUpdated(
+        uint256 requestId,
+        uint256 modelId,
+        string input,
+        bytes callbackData,
+        bytes outputscored
+    );
+    event promptRequest(
+        uint256 requestId,
+        address sender,
+        uint256 modelId,
+        string prompt
+    );
 
     struct AIOracleRequest {
         address sender;
         uint256 modelId;
         bytes input;
         bytes output;
-        uint256 score;
     }
-    /// @dev modelId => callback gasLimit
-    mapping(uint256 => uint64) public callbackGasLimit;
+
+    /// @dev requestId => AIOracleRequest
     mapping(uint256 => AIOracleRequest) public requests;
-    mapping(address => uint256) score;
     mapping(address => bool) hasDeposited;
     mapping(address => bool) public hasEntered;
 
-    modifier onlyOwner() {
-        require(msg.sender == owner, "Only owner");
-        _;
+    /// @dev modelId => callback gasLimit
+    mapping(uint256 => uint64) public callbackGasLimit;
+    mapping(address => uint256) Score;
+    /// @notice Initialize the contract, binding it to a specified AIOracle.
+    constructor(
+        IAIOracle _aiOracle,
+        string memory _theme,
+        uint256 _entryCost,
+        uint256 _scoreToWin
+    ) AIOracleCallbackReceiver(_aiOracle) {
+        owner = msg.sender;
+        riddleTheme = _theme;
+        entryCost = _entryCost;
+        scoreToWin = _scoreToWin;
+        callbackGasLimit[50] = 500_000; // Stable Diffusion
+        callbackGasLimit[11] = 5_000_000; // Llama
     }
 
     modifier noWinnerYet() {
@@ -41,61 +63,122 @@ contract ThemeContest is AIOracleCallbackReceiver {
         _;
     }
 
-    /// @notice Constructor to initialize the contest
-    /// @param _aiOracle The AI oracle contract address
-    /// @param _theme The theme of the contest
-    /// @param _entryCost The cost of entry in wei
-    /// @param _scoreToWin The score needed to win
-    constructor(
-        IAIOracle _aiOracle,
-        string memory _theme,
-        uint256 _entryCost,
-        uint256 _scoreToWin
-    ) AIOracleCallbackReceiver(_aiOracle) {
-        // Set default gas limits for AI models (customize as needed)
-        callbackGasLimit[50] = 500_000; // Stable Diffusion
-        callbackGasLimit[11] = 5_000_000; // Llama
-        owner = msg.sender;
-        theme = _theme;
-        entryCost = _entryCost;
-        scoreToWin = _scoreToWin;
-    }
-
-    function Score(address player) public view returns (uint256) {
-        return score[player];
-    }
     function deposit() external payable {
         require(msg.value >= entryCost, "Insufficient entry cost");
         prizePool += msg.value;
         hasDeposited[msg.sender] = true;
     }
-    /// @notice Allows participants to enter the contest
-    /// @param modelId The AI model ID to use for scoring
-    /// @param answer The URL of the participant's submission
-    //modelId=11
-    function enterContest(
+    address public owner;
+
+    modifier onlyOwner() {
+        require(msg.sender == owner, "Only owner");
+        _;
+    }
+    /// @notice sets the callback gas limit for a model
+    /// @dev only owner can set the gas limit
+    function setCallbackGasLimit(
+        uint256 modelId,
+        uint64 gasLimit
+    ) external onlyOwner {
+        callbackGasLimit[modelId] = gasLimit;
+    }
+
+    /// @dev uint256: modelID => (string: prompt => string: output)
+    mapping(uint256 => mapping(string => string)) public prompts;
+
+    /// @notice returns the output for the specified model and prompt
+    function getAIResult(
+        uint256 modelId,
+        string calldata prompt
+    ) external view returns (string memory) {
+        return prompts[modelId][prompt];
+    }
+
+    /// @notice estimating fee that is spent by OAO
+    function estimateFee(uint256 modelId) public view returns (uint256) {
+        return aiOracle.estimateFee(modelId, callbackGasLimit[modelId]);
+    }
+    mapping(address => bytes) response;
+    function ScoreForPlayer(address player) public view returns (bytes memory) {
+        return response[player];
+    }
+
+    function RiddleScore(address player) public view returns (uint256) {
+        return riddleScore[player];
+    }
+
+    function stringToUint(
+        string memory str
+    ) public pure returns (uint256 result) {
+        bytes memory b = bytes(str);
+        result = 0;
+
+        for (uint256 i = 0; i < b.length; i++) {
+            // Check that the character is a number (ASCII values from '0' to '9')
+            require(
+                b[i] >= 0x30 && b[i] <= 0x39,
+                "Invalid character in string"
+            );
+            result = result * 10 + (uint256(uint8(b[i])) - 0x30);
+        }
+    }
+
+    function bytesToUint(bytes memory b) internal pure returns (uint256) {
+        uint256 number = 0;
+        for (uint256 i = 0; i < b.length; i++) {
+            require(b[i] >= 0x30 && b[i] <= 0x39, "Not a valid ASCII digit");
+            number = number * 10 + (uint8(b[i]) - 0x30);
+        }
+        return number;
+    }
+
+    mapping(address => uint256) riddleScore;
+    /// @notice OAO executes this method after it finishes with computation
+    /// @param requestId id of the request
+    /// @param output result of the OAO computation
+    /// @param callbackData optional data that is executed in the callback
+    function aiOracleCallback(
+        uint256 requestId,
+        bytes calldata output,
+        bytes calldata callbackData
+    ) external onlyAIOracleCallback {
+        AIOracleRequest storage request = requests[requestId];
+        require(request.sender != address(0), "request does not exist");
+        bytes memory scoredoutput = output;
+        response[request.sender] = output;
+        uint256 num = bytesToUint(output);
+        riddleScore[request.sender] = num;
+        emit promptsUpdated(
+            requestId,
+            request.modelId,
+            string(request.input),
+            callbackData,
+            scoredoutput
+        );
+    }
+
+    /// @notice main point of interaction with OAO
+    /// @dev aiOracle.requestCallback sends request to OAO
+    function participateRiddle(
         uint256 modelId,
         string calldata answer
-    ) external payable noWinnerYet returns (uint256) {
-        // Create the AI prompt
+    ) external payable returns (uint256) {
         require(hasDeposited[msg.sender], "need to deposit first");
         require(!hasEntered[msg.sender], "Already entered the contest");
-
         string memory prompt = string(
             abi.encodePacked(
-                "Riddle: speak without a mouth and hear without ears. I have no body, but I come alive with wind. What am I? ",
+                "Riddle: \n",
+                riddleTheme,
                 "\n",
                 "riddle answer: ",
                 answer,
                 "\n",
-                "Task: check this answer with given riddle\n",
-                "Scale: 1 to 10\n",
-                "Instructions: give score directly dont explain anything (correct-give score 10), somewhat correct(give score-5) "
+                "Task: Score the answer similar to riddle solution\n",
+                "Scale:Just  1 to 10 (1=not related to answer,10=correct solution for given riddle)\n",
+                "Instructions: Respond with only a single number between 1-10 "
             )
         );
         bytes memory input = bytes(prompt);
-
-        // Request a score from the AI Oracle
         uint256 requestId = aiOracle.requestCallback{value: msg.value}(
             modelId,
             input,
@@ -103,58 +186,23 @@ contract ThemeContest is AIOracleCallbackReceiver {
             callbackGasLimit[modelId],
             ""
         );
-
-        // Store request details
         AIOracleRequest storage request = requests[requestId];
+        request.input = input;
         request.sender = msg.sender;
         request.modelId = modelId;
-        request.input = input;
         hasEntered[msg.sender] = true;
-        emit ContestEntered(msg.sender, requestId);
+        emit promptRequest(requestId, msg.sender, modelId, prompt);
         return requestId;
     }
 
-    /// @notice Callback function for AI Oracle to provide results
-    function aiOracleCallback(
-        uint256 requestId,
-        bytes calldata output,
-        bytes calldata callbackData
-    ) external onlyAIOracleCallback {
-        AIOracleRequest storage request = requests[requestId];
-        require(request.sender != address(0), "Invalid request");
-
-        // Decode the score from the AI response
-        uint256 scored = parseScore(output);
-        request.output = output;
-        request.score = scored;
-
-        emit AIResult(requestId, request.sender, scored);
-        // Check if the participant has won
-        if (scored >= scoreToWin && winner == address(0)) {
-            winner = request.sender;
-        }
-    }
-
-    /// @notice Allows the winner to claim the prize pool
-    function claimPrize() external noWinnerYet {
-        require(msg.sender == winner, "Not the winner");
+    function claimPrize() external {
+        require(
+            riddleScore[msg.sender] > scoreToWin,
+            "didnt score for requiredToWin"
+        );
         uint256 prize = prizePool;
         prizePool = 0;
-        winner = address(0);
-
         (bool success, ) = msg.sender.call{value: prize}("");
         require(success, "Transfer failed");
-
-        emit PrizeClaimed(msg.sender, prize);
-    }
-
-    /// @notice Helper function to parse the AI response into a score
-    function parseScore(bytes memory output) internal pure returns (uint256) {
-        return (uint256(keccak256(output)) % 10) + 1; // Mock parsing logic
-    }
-
-    /// @notice Estimating fee for AI Oracle
-    function estimateFee(uint256 modelId) public view returns (uint256) {
-        return aiOracle.estimateFee(modelId, callbackGasLimit[modelId]);
     }
 }
