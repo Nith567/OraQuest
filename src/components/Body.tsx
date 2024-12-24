@@ -1,8 +1,14 @@
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import { CompetitionEntryDialog } from "./Dialog";
-
+import axios from "axios";
+import { useRouter } from "next/navigation";
 export function Body() {
+  const router = useRouter();
+  function handleRedirect() {
+    router.push("competitions");
+  }
+
   return (
     <main className="flex-1">
       <section className="w-full py-12 md:py-24 lg:py-32 xl:py-48 bg-black text-white">
@@ -18,8 +24,9 @@ export function Body() {
               </p>
             </div>
             <div className="space-x-4">
-              <Button>Join Now</Button>
-              <Button variant="outline">View Contests</Button>
+              <Button onClick={handleRedirect} variant="outline">
+                View Contests
+              </Button>
             </div>
           </div>
           <div className="mt-12 flex justify-center">

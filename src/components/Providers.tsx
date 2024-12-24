@@ -24,7 +24,7 @@ import { QueryClientProvider, QueryClient } from "@tanstack/react-query";
 const queryClient = new QueryClient();
 
 const config = getDefaultConfig({
-  appName: "Some App",
+  appName: "OraQuest",
   projectId: process.env.NEXT_PUBLIC_PROJECT_ID || "",
   chains: [optimismSepolia],
   transports: {
@@ -49,12 +49,6 @@ export const publicClient = createPublicClient({
     "https://opt-sepolia.g.alchemy.com/v2/POcytJtZjkzStgaMseE9BxpHexaC4Tfj"
   ),
 });
-export const initClients = async () => {
-  const [account] = await walletClient.getAddresses();
-  console.log("config account", account);
-
-  return { account };
-};
 
 export default function Providers({ children }: { children: React.ReactNode }) {
   return (

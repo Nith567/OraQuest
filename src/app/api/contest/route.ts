@@ -19,3 +19,13 @@ export async function POST(req: NextRequest) {
     return new NextResponse("Internal error:   ", { status: 500 });
   }
 }
+
+export async function GET(req: NextRequest) {
+  try {
+    const contests = await prismadb.chainQuest.findMany({});
+    return NextResponse.json(contests);
+  } catch (error) {
+    console.log("so theadd     ", error);
+    return new NextResponse("Internal error:   ", { status: 500 });
+  }
+}

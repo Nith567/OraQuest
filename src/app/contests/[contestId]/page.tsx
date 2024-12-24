@@ -85,22 +85,30 @@ export default function ContestDetails({ params }: contestParams) {
   }
 
   async function claimPrize() {
-    writeContract({
-      address: contestData.contractAddress,
-      abi: chainQuestContract.abi,
-      functionName: "claimPrize",
-      args: [],
-    });
+    try {
+      writeContract({
+        address: contestData.contractAddress,
+        abi: chainQuestContract.abi,
+        functionName: "claimPrize",
+        args: [],
+      });
+    } catch (error) {
+      console.error(error);
+    }
   }
 
   async function deposit() {
-    writeContract({
-      address: contestData.contractAddress as `0x{string}`,
-      abi: chainQuestContract.abi,
-      functionName: "deposit",
-      args: [],
-      value: parseEther(contestData.entryCost),
-    });
+    try {
+      writeContract({
+        address: contestData.contractAddress as `0x{string}`,
+        abi: chainQuestContract.abi,
+        functionName: "deposit",
+        args: [],
+        value: parseEther(contestData.entryCost),
+      });
+    } catch (error) {
+      console.error(error);
+    }
   }
   useEffect(() => {
     if (!contestId) return;
