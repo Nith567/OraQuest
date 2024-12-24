@@ -71,19 +71,23 @@ export default function ContestDetails({ params }: contestParams) {
   };
 
   async function Contest() {
-    console.log(answer);
-    const fee = await estimateFee();
-    writeContract({
-      address: contestData.contractAddress as `0x{string}`,
-      abi: chainQuestContract.abi,
-      functionName: "participateRiddle",
-      args: [11, answer],
-      value: fee,
-    });
-    toast({
-      title: "Contest Entered",
-      description: "You have successfully entered the contest.",
-    });
+    try {
+      console.log(answer);
+      const fee = await estimateFee();
+      writeContract({
+        address: contestData.contractAddress as `0x{string}`,
+        abi: chainQuestContract.abi,
+        functionName: "participateRiddle",
+        args: [11, answer],
+        value: fee,
+      });
+      toast({
+        title: "Contest Entered",
+        description: "You have successfully entered the contest.",
+      });
+    } catch (error) {
+      console.error("error", error);
+    }
   }
 
   async function claimPrize() {
