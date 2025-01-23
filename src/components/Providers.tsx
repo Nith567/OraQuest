@@ -41,9 +41,19 @@ export function ThemeProvider({ children, ...props }: ThemeProviderProps) {
 
 export const walletClient = createWalletClient({
   chain: baseSepolia,
-  transport: custom(window.ethereum),
+  transport: http(),
+  // transport: custom(window.ethereum),
 });
 
+// useEffect(() => {
+//   if (typeof window === "undefined") return;
+
+//   const walletClient = createWalletClient({
+//     chain: mainnet,
+//     transport: custom(window.ethereum as WindowProvider),
+//   });
+//   setWalletClient(walletClient as WalletClient);
+// }, []);
 export const publicClient = createPublicClient({
   chain: mainnet,
   transport: http(
