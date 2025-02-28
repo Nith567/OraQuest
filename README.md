@@ -12,7 +12,6 @@ Ora-Quest is a decentralized application (dApp) that leverages the power of an o
 - **Prize Claiming**: Participants can claim prizes if their answer scores exceed the required deployed score intially.
 - **Secure Smart Contracts**: Logic for competitions and prize distribution is handled by robust smart contracts.
 
-
 ## Youtube Demo : 
 1)[oraOptimismSepolia DEMO VIDEO](https://youtu.be/_GRlXyxbrE4)
 2)[OraBase DEMO VIDE](https://youtu.be/VCNEdlU4bz4)
@@ -29,7 +28,6 @@ Ora-Quest is a decentralized application (dApp) that leverages the power of an o
 
 3. **Claim Prize**:
    - If the score is greater than or equal to the required score, the participant can claim the prize.
-
 
 ![alt text](<Screenshot 2024-12-23 at 8.32.04 PM.png>)
 
