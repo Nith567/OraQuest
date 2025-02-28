@@ -31,4 +31,3 @@ Ora-Quest is a decentralized application (dApp) that leverages the power of an o
 
 ![alt text](<Screenshot 2024-12-23 at 8.32.04 PM.png>)
 >Sample Riddle - speak without a mouth and hear without ears. I have no body, but I come alive with wind. What am I?
-
